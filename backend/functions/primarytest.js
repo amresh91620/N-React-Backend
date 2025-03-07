@@ -7,6 +7,11 @@ const FunctionInsert = async (req, resp) => {
     try {
         const { var1, var2, var3 } = req.body;
 
+        // Check if required fields are missing
+        if (!var1 || !var2 || !var3) {
+            return resp.status(400).json({ message: "All fields are required!" });
+        }
+
         // Ensure the connection is established
         const client = await o1.connect();
 
@@ -27,4 +32,23 @@ const FunctionInsert = async (req, resp) => {
     }
 };
 
-module.exports = { FunctionInsert };
+
+const FunctionSelect = async (_req, resp) => {
+    try {
+        // Ensure the connection is established
+        const client = await o1.connect();
+
+        // Execute query
+        const result = await client.query("SELECT * FROM public.\"Users\";");
+
+        // Release the client back to the pool
+        client.release();
+
+        resp.json(result.rows);
+    } catch (error) {
+        console.error("Error executing query:", error);
+        resp.status(500).send("Something went wrong!");
+    }
+};
+
+module.exports = { FunctionInsert, FunctionSelect };
